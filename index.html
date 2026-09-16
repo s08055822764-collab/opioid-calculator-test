@@ -103,12 +103,19 @@ var rounded_flow_rate = (Math.round(float_mLperhr / 0.05) * 0.05).toFixed(int_nu
         too_low_flow_rate = true;
     }
 
-    // 計算結果が0.00mL/hrの場合も少なすぎるコメントを表示
-    if (rounded_flow_rate == "0.00" || too_low_flow_rate) {
-        str_OPIresult = "あなたの選択した <font size=6>" + str_message + " では、投与量が<br>" + rounded_flow_rate + " mL/hrとなってしまい、少なすぎます。<br>希釈して用いる方法をご検討ください。</font><br>";
-    } else {
-        str_OPIresult = "あなたの選択した <font size=6>" + str_message + " を<br>" + rounded_flow_rate + " mL/hr</font>で流してください。<br>必ずご自分でも検算してください。<br>なお <font color='red' size=4>経口等から持続注射に切り替える場合や、オピオイドの種類が変わる場合などは、ここでの当量換算結果よりすこし少なめの投与速度から開始して様子をみてベースアップするなどの慎重な対応をご検討ください。</font>";
-    }
+  // 警告対象の場合は、表示を0.00 mL/hrにする
+var display_flow_rate = rounded_flow_rate;
+
+if (too_low_flow_rate) {
+    display_flow_rate = "0.00";
+}
+
+// 計算結果が0.00mL/hrの場合、または警告対象の場合
+if (rounded_flow_rate == "0.00" || too_low_flow_rate) {
+    str_OPIresult = "あなたの選択した <font size=6>" + str_message + " では、投与量が<br>" + display_flow_rate + " mL/hrとなってしまい、少なすぎます。<br>希釈して用いる方法をご検討ください。</font><br>";
+} else {
+    str_OPIresult = "あなたの選択した <font size=6>" + str_message + " を<br>" + rounded_flow_rate + " mL/hr</font>で流してください。<br>必ずご自分でも検算してください。<br>なお <font color='red' size=4>経口等から持続注射に切り替える場合や、オピオイドの種類が変わる場合などは、ここでの当量換算結果よりすこし少なめの投与速度から開始して様子をみてベースアップするなどの慎重な対応をご検討ください。</font>";
+}  
 
     return str_OPIresult;
 }
