@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)file:///C:/Users/s0805/Downloads/index(4)%20(5).html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>オピオイド持続注射自動流速計算</title>
+<script>
+var coefficient_from_morphineIV_to_OralMor = 60/25.0;
+var coefficient_from_oxycodoneIV_to_OralMor = 60/30.0;
+var coefficient_from_hydromorphoneIV_to_OralMor = 30/1.2;
+var coefficient_from_fentanylIV_to_OralMor = 0.1;
+var int_num_of_decimal_places = 2;
+
+function onload_initializer() {
+    var str_param = location.search;
+    var bool_param_regex = str_param.match(/\?OralMor_mgEq=([0123456789.]+)/g);
+    if (bool_param_regex != null) {
+        document.form_main.currentOralMor_mgEq.value = (bool_param_regex[0]).slice(14);
+    }
+}
+
+function get_OPIresult(str_OralMor_mgEq, str_opi_t, str_message) {
+    var str_OPIresult = new String();
+    var OPI_total_mg = 0;
+    var float_mLperhr = 0;
+    var float_OralMor_mgEq = Number(str_OralMor_mgEq);
+    var concentration = 1.0;
+
+    switch (str_opi_t) {
+        case "MorDiluted":
+            concentration = 1.0;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_morphineIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "Mor":
+            concentration = 10.0;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_morphineIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "Mor40":
+            concentration = 40.0;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_morphineIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "OxyDiluted":
+            concentration = 1.0;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_oxycodoneIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "Oxy":
+            concentration = 10.0;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_oxycodoneIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "Nal0_2":
+            concentration = 0.2;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_hydromorphoneIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "Nal1":
+            concentration = 1.0;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_hydromorphoneIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "HDM":
+            concentration = 2.0;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_hydromorphoneIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "HDM10":
+            concentration = 10.0;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_hydromorphoneIV_to_OralMor;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "FenDiluted":
+            concentration = 0.01;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_fentanylIV_to_OralMor / 1000;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+        case "Fen":
+            concentration = 0.05;
+            OPI_total_mg = float_OralMor_mgEq / coefficient_from_fentanylIV_to_OralMor / 1000;
+            float_mLperhr = OPI_total_mg / (concentration * 24.0);
+            break;
+    }
+
+    var rounded_flow_rate = (Math.round(float_mLperhr / 0.05) * 0.05).toFixed(int_num_of_decimal_places);
+    if (rounded_flow_rate == "0.00") {
+        str_OPIresult = "あなたの選択した <font size=6>" + str_message + " では、投与量が<br>" + rounded_flow_rate + " mL/hrとなってしまい、少なすぎます。<br>希釈して用いる方法をご検討ください。</font><br>";
+    } else {
+        str_OPIresult = "あなたの選択した <font size=6>" + str_message + " を<br>" + rounded_flow_rate + " mL/hr</font>で流してください。<br>必ずご自分でも検算してください。<br>なお <font color='red' size=4>経口等から持続注射に切り替える場合や、オピオイドの種類が変わる場合などは、ここでの当量換算結果よりすこし少なめの投与速度から開始して様子をみてベースアップするなどの慎重な対応をご検討ください。</font>";
+    }
+    return str_OPIresult;
+}
+
+function input_completed() {
+    var targetArea_result_continuous_injection = document.getElementById("result_continuous_injection");
+    var ids = [
+        "opioidselectionMor1mgperml_1","opioidselectionMor1mgperml_2","opioidselectionMor10mgperml","opioidselectionMor40mgperml",
+        "opioidselectionOxy1mgperml_1","opioidselectionOxy1mgperml_2","opioidselectionOxy10mgperml",
+        "opioidselectionHDM0_1mgperml_1","opioidselectionHDM0_1mgperml_2","opioidselectionHDM2mgperml","opioidselectionHDM10mgperml",
+        "opioidselectionFen10mcgperml_1","opioidselectionFen10mcgperml_2","opioidselectionFen50mcgperml"
+    ];
+    var checkedId = null;
+    for (var i=0;i<ids.length;i++) { if (document.getElementById(ids[i]).checked) { checkedId=ids[i]; break; } }
+    var value = document.form_main.currentOralMor_mgEq.value;
+    var numberValue = Number(value);
+    var result = "";
+
+    if (value === "" || numberValue === 0) {
+        result += "換算するためには次の項目が不足しています。<br>現在のオピオイド鎮痛薬の経口モルヒネ換算量 が入力されていません。<br>";
+    }
+    if (!checkedId) {
+        result += "今後のオピオイド鎮痛薬の持続注入(静注・皮下注)の組成 が選択されていません。<br>";
+    }
+    if (result !== "") { targetArea_result_continuous_injection.innerHTML = result; return; }
+    if (isNaN(numberValue) || numberValue < 0) {
+        targetArea_result_continuous_injection.innerHTML = "現在のオピオイド鎮痛薬の経口モルヒネ換算量に異常があります。<br>"; return;
+    }
+
+    var map = {
+        opioidselectionMor1mgperml_1:["MorDiluted","モルヒネ(10mg/1mL/A) 1A＋生食9mL (合計10mL、濃度1mg/mL)"],
+        opioidselectionMor1mgperml_2:["MorDiluted","モルヒネ(50mg/5mL/A) 1A＋生食45mL (合計50mL、濃度1mg/mL)"],
+        opioidselectionMor10mgperml:["Mor","1%モルヒネ原液(濃度10mg/mL)"],
+        opioidselectionMor40mgperml:["Mor40","高濃度4％モルヒネ原液(濃度40mg/mL)"],
+        opioidselectionOxy1mgperml_1:["OxyDiluted","オキシコドン(10mg/1mL/A) 1A＋生食9mL (合計10mL、濃度1mg/mL)"],
+        opioidselectionOxy1mgperml_2:["OxyDiluted","オキシコドン(50mg/5mL/A) 1A＋生食45mL (合計50mL、濃度1mg/mL)"],
+        opioidselectionOxy10mgperml:["Oxy","オキシコドン原液(濃度10mg/mL)"],
+        opioidselectionHDM0_1mgperml_1:["Nal0_2","ナルベイン(2mg/1mL/A) 1A＋生食9mL (合計10mL、濃度0.2mg/mL)"],
+        opioidselectionHDM0_1mgperml_2:["Nal1","ナルベイン(2mg/1mL/A) 5A＋生食5mL (合計10mL、濃度1mg/mL)"],
+        opioidselectionHDM2mgperml:["HDM","0.2％ナルベイン原液(濃度2mg/mL)"],
+        opioidselectionHDM10mgperml:["HDM10","高濃度1％ナルベイン原液(濃度20mg/2mL)"],
+        opioidselectionFen10mcgperml_1:["FenDiluted","フェンタニル(0.1mg/2mL/A) 1A＋生食8mL (合計10mL、濃度0.01mg/mL=10μg/mL)"],
+        opioidselectionFen10mcgperml_2:["FenDiluted","フェンタニル(0.5mg/10mL/A) 1A＋生食40mL (合計50mL、濃度0.01mg/mL=10μg/mL)"],
+        opioidselectionFen50mcgperml:["Fen","フェンタニル原液(濃度0.05mg/mL=50μg/mL)"]
+    };
+    targetArea_result_continuous_injection.innerHTML = get_OPIresult(numberValue, map[checkedId][0], map[checkedId][1]);
+}
+</script>
+</head>
+<body onload="onload_initializer();">
+<form name="form_main">
+<strong>無保証です。自己責任でご利用ください。2026年9月</strong>
+<br><br><hr>
+現在のオピオイド鎮痛薬の経口モルヒネ換算量はいくつですか？(mg/day)
+<input id="currentOralMor_mgEq" type="number" name="currentOralMor_mgEq" min="0" max="10000" step="0.1">
+<br><br>
+これから使いたいのオピオイド鎮痛薬のシリンジポンプ持続注入(静注・皮下注)の組成はどれですか？
+<br><br>
+<input id="opioidselectionMor1mgperml_1" type="radio" name="opioidselection"><font color="red">モルヒネ</font>(10mg/1mL/A) 1A＋生食9mL (合計10mL、濃度1mg/mL)<br>
+<input id="opioidselectionMor1mgperml_2" type="radio" name="opioidselection"><font color="red">モルヒネ</font>(50mg/5mL/A) 1A＋生食45mL (合計50mL、濃度1mg/mL)<br>
+<input id="opioidselectionMor10mgperml" type="radio" name="opioidselection"><font color="red">1%モルヒネ</font>原液(濃度10mg/mL)<br>
+<input id="opioidselectionMor40mgperml" type="radio" name="opioidselection"><font color="red">高濃度4％モルヒネ</font>原液(濃度40mg/mL)<br><br>
+<input id="opioidselectionOxy1mgperml_1" type="radio" name="opioidselection"><font color="green">オキシコドン</font>(10mg/1mL/A) 1A＋生食9mL (合計10mL、濃度1mg/mL)<br>
+<input id="opioidselectionOxy1mgperml_2" type="radio" name="opioidselection"><font color="green">オキシコドン</font>(50mg/5mL/A) 1A＋生食45mL (合計50mL、濃度1mg/mL)<br>
+<input id="opioidselectionOxy10mgperml" type="radio" name="opioidselection"><font color="green">オキシコドン</font>原液(濃度10mg/mL)<br><br>
+<input id="opioidselectionHDM0_1mgperml_1" type="radio" name="opioidselection"><font color="purple">ナルベイン</font>(2mg/1mL/A) 1A＋生食9mL (合計10mL、濃度0.2mg/mL)<br>
+<input id="opioidselectionHDM0_1mgperml_2" type="radio" name="opioidselection"><font color="purple">ナルベイン</font>(2mg/1mL/A) 5A＋生食5mL (合計10mL、濃度1mg/mL)<br>
+<input id="opioidselectionHDM2mgperml" type="radio" name="opioidselection"><font color="purple">0.2%ナルベイン</font>原液(濃度2mg/mL)<br>
+<input id="opioidselectionHDM10mgperml" type="radio" name="opioidselection"><font color="purple">高濃度1％ナルベイン</font>原液(濃度20mg/2mL)<br><br>
+<input id="opioidselectionFen10mcgperml_1" type="radio" name="opioidselection"><font color="blue">フェンタニル</font>(0.1mg/2mL/A) 1A＋生食8mL (合計10mL、濃度0.01mg/mL=10μg/mL)<br>
+<input id="opioidselectionFen10mcgperml_2" type="radio" name="opioidselection"><font color="blue">フェンタニル</font>(0.5mg/10mL/A) 1A＋生食40mL (合計50mL、濃度0.01mg/mL=10μg/mL)<br>
+<input id="opioidselectionFen50mcgperml" type="radio" name="opioidselection"><font color="blue">フェンタニル</font>原液(濃度0.05mg/mL=50μg/mL)<br><br>
+<input type="button" value="入力完了しました(持続注射へ換算)" onclick="input_completed();" style="width:300px;height:50px">
+<br><strong>！！入力完了後、このボタンを押してください。</strong><br><hr>
+<font color="blue"><div id="result_continuous_injection"><!-- 初期画面ではエラーメッセージを表示しない --></div></font>
+<br>
+</form>
+<script>
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('./service-worker.js').catch(function (err) { console.log('Service Worker登録失敗:', err); }); }); }
+</script>
+
+
+</body></html>
