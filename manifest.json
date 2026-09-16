@@ -1,20 +1,24 @@
 {
   "name": "オピオイド持続注射自動流速計算",
-  "short_name": "OPI Calc",
+  "short_name": "オピオイド計算",
   "description": "オピオイド持続注射流速計算",
   "start_url": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "browser"
+  ],
   "background_color": "#ffffff",
   "theme_color": "#1976d2",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
